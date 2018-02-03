@@ -2,6 +2,7 @@ package edu.kennesaw.cs.core;
 
 import edu.kennesaw.cs.readers.Document;
 
+import java.lang.reflect.Array;
 import java.util.*;
 
 /*
@@ -31,13 +32,68 @@ public class CoreSearchImpl implements CoreSearch {
     /*
     A very simple tokenization.
      */
-    public String[] tokenize(String title) {
-        return title.split(" ");
+//    public String[] tokenize(String title) {
+//        return title.split(" ");
+//    }
+
+    public List<String> tokenize(String title) {
+        List<String> tokens = new ArrayList<String>(Arrays.asList(title.split(" ")));
+        List<String> append = new ArrayList<String>();
+
+        for (int i = 0; i < tokens.size(); i++) {
+            String current_token = tokens.get(i);
+
+            // Tokenize -
+            append = addTokenToList(current_token.split("-"), append);
+
+//            String[] words = tokens.get(i).split("-");
+//            if(words.length > 0 ){
+//                append.addAll(Arrays.asList(words));
+//            }
+
+
+
+
+            // Tokenize numbers
+            append = addTokenToList(mapNumbers(current_token), append);
+//            String numMap = mapNumbers(tokens.get(i));
+//            if(numMap.length() > 0){
+//                append.add(numMap);
+//
+//            }
+
+
+            // Stemming
+            append = addTokenToList(stemming(current_token), append);
+//            String new_word = stemming(tokens.get(i));
+//            if(new_word.length() > 0){
+//                append.add(new_word);
+//            }
+
+
+            append = addTokenToList(specialChar(current_token), append);
+//            // special char
+//            new_word = specialChar(tokens.get(i));
+//            if(new_word.length() > 0){
+//                append.add(new_word);
+//            }
+
+
+        }
+
+
+
+        tokens.addAll(append);
+        return tokens;
     }
+
+
+
 
     public void addToIndex(Document document) {
 
-        String[] tokens = tokenize(document.getTitle());
+        List<String> tokens= tokenize(document.getTitle());  // add title
+//        tokens.addAll(tokenize(document.getBody()));  // ADD BODY
         for (String token : tokens) {
             addTokenToIndex(token, document.getId());
         }
@@ -93,10 +149,6 @@ public class CoreSearchImpl implements CoreSearch {
         return invertedIndex.size();
     }
 
-    /*
-    A very simple search implementation.
-     */
-
 
     /*
     Ignore terms in query that are not in Index
@@ -120,6 +172,9 @@ public class CoreSearchImpl implements CoreSearch {
      */
     public List<Integer> search(String query) {
         String[] queryTokens = removeNotIndexTokens(query.split(" "));
+//        List<String> token_List = tokenize(query);
+//
+//        String[] queryTokens = removeNotIndexTokens(token_List.toArray(new String[0]));
         List<Integer> mergedDocIds = new ArrayList<Integer>();
         if (queryTokens.length == 0) return mergedDocIds;
         int index = 1;
@@ -165,6 +220,143 @@ public class CoreSearchImpl implements CoreSearch {
 
 
         return mergedList;
+    }
+
+
+    private String stemming(String token){
+        String results = "";
+        String[] stemmingList = {"s", "es", "ies", "s\', '\'", "ed", "ing"};
+
+
+        for (int i = 0; i < stemmingList.length ; i++) {
+            if (token.endsWith(stemmingList[i])){
+                results = token.substring(0, token.length() - stemmingList[i].length());
+            }
+        }
+        return results;
+
+    }
+
+
+
+    /*  Helper Functions */
+
+    private String specialChar(String token){
+        String results = token;
+        char[] specialChar = {',', '?', '/', '\\', '(', ')'};
+        boolean flag = false;
+        // Strip Special char from front and end
+        if(results != null && results.length() > 0){
+            for (int i = 0; i < specialChar.length ; i++) {
+
+                if (results.charAt(0) == specialChar[i] ){
+                    results = results.substring(1, results.length());
+                    flag = true;
+                }
+                int last_char = results.length() - 1;
+                if (results.charAt(last_char) == specialChar[i] ){
+                    results = results.substring(0, last_char);
+                    flag = true;
+                }
+            }
+        }
+
+
+        if(flag)
+            return results;
+
+
+        return "";
+    }
+
+
+    private String mapNumbers(String value){
+        String result = "";
+        switch (value){
+            case "0":
+                result = "zero";
+                break;
+            case "1":
+                result = "one";
+                break;
+            case "2":
+                result = "two";
+                break;
+            case "3":
+                result = "three";
+                break;
+            case "4":
+                result = "four";
+                break;
+            case "5":
+                result = "five";
+                break;
+            case "6":
+                result = "six";
+                break;
+            case "7":
+                result = "seven";
+                break;
+            case "8":
+                result = "eight";
+                break;
+            case "9":
+                result = "nine";
+                break;
+
+            case "zero":
+                result = "0";
+                break;
+            case "one":
+                result = "1";
+                break;
+            case "two":
+                result = "2";
+                break;
+            case "three":
+                result = "3";
+                break;
+            case "four":
+                result = "4";
+                break;
+            case "five":
+                result = "5";
+                break;
+            case "six":
+                result = "6";
+                break;
+            case "seven":
+                result = "7";
+                break;
+            case "eight":
+                result = "8";
+                break;
+            case "nine":
+                result = "9";
+                break;
+        }
+        return result;
+    }
+
+
+    /*  Overloaded Functions */
+    private List<String> addTokenToList(String token, List<String> append){
+        if(token != null   && token.length() > 0){
+            append.add(token);
+        }
+        return append;
+    }
+    private List<String> addTokenToList(List<String> token, List<String> append){
+        if(token != null   && token.size() > 0){
+            append.addAll(token);
+        }
+        return append;
+    }
+    private List<String> addTokenToList(String[] token, List<String> append){
+        if(token != null   && token.length > 0){
+            append.addAll(Arrays.asList(token));
+        }
+        return append;
     }
 
 
