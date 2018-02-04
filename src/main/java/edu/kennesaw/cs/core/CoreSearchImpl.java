@@ -40,43 +40,23 @@ public class CoreSearchImpl implements CoreSearch {
         List<String> tokens = new ArrayList<String>(Arrays.asList(title.split(" ")));
         List<String> append = new ArrayList<String>();
 
+//        String[] stopWords = {"a", "an", "but", "the", "by", "is", "of", "from", "for"};
+//        tokens.removeAll(Arrays.asList(stopWords));
         for (int i = 0; i < tokens.size(); i++) {
             String current_token = tokens.get(i);
+
 
             // Tokenize -
             append = addTokenToList(current_token.split("-"), append);
 
-//            String[] words = tokens.get(i).split("-");
-//            if(words.length > 0 ){
-//                append.addAll(Arrays.asList(words));
-//            }
-
-
-
-
             // Tokenize numbers
             append = addTokenToList(mapNumbers(current_token), append);
-//            String numMap = mapNumbers(tokens.get(i));
-//            if(numMap.length() > 0){
-//                append.add(numMap);
-//
-//            }
-
 
             // Stemming
             append = addTokenToList(stemming(current_token), append);
-//            String new_word = stemming(tokens.get(i));
-//            if(new_word.length() > 0){
-//                append.add(new_word);
-//            }
 
-
+            // Special Char
             append = addTokenToList(specialChar(current_token), append);
-//            // special char
-//            new_word = specialChar(tokens.get(i));
-//            if(new_word.length() > 0){
-//                append.add(new_word);
-//            }
 
 
         }
@@ -94,6 +74,11 @@ public class CoreSearchImpl implements CoreSearch {
 
         List<String> tokens= tokenize(document.getTitle());  // add title
 //        tokens.addAll(tokenize(document.getBody()));  // ADD BODY
+
+        // Remove Dup
+        //        https://stackoverflow.com/questions/23079003/how-to-convert-a-java-8-stream-to-an-array
+//        String[] token_list = tokens.stream().distinct().toArray(String[]::new);
+
         for (String token : tokens) {
             addTokenToIndex(token, document.getId());
         }
@@ -246,7 +231,7 @@ public class CoreSearchImpl implements CoreSearch {
         char[] specialChar = {',', '?', '/', '\\', '(', ')'};
         boolean flag = false;
         // Strip Special char from front and end
-        if(results != null && results.length() > 0){
+        if(results != null && results.length() > 1){
             for (int i = 0; i < specialChar.length ; i++) {
 
                 if (results.charAt(0) == specialChar[i] ){
@@ -254,7 +239,7 @@ public class CoreSearchImpl implements CoreSearch {
                     flag = true;
                 }
                 int last_char = results.length() - 1;
-                if (results.charAt(last_char) == specialChar[i] ){
+                if (results.length() > 1 &&  results.charAt(last_char) == specialChar[i] ){
                     results = results.substring(0, last_char);
                     flag = true;
                 }
