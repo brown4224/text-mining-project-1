@@ -73,7 +73,7 @@ public class CoreSearchImpl implements CoreSearch {
     public void addToIndex(Document document) {
 
         List<String> tokens= tokenize(document.getTitle());  // add title
-//        tokens.addAll(tokenize(document.getBody()));  // ADD BODY
+        tokens.addAll(tokenize(document.getBody()));  // ADD BODY
 
         // Remove Dup
         //        https://stackoverflow.com/questions/23079003/how-to-convert-a-java-8-stream-to-an-array
