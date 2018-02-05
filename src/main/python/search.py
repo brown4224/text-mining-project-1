@@ -7,19 +7,18 @@ def remove_not_indexed_toknes(tokens):
     return [token for token in tokens if token in inverted_index]
 
 
-
-
 def merge_two_postings(first, second):
     first_index = 0
     second_index = 0
     merged_list = []
+    # print(first)
 
     while first_index < len(first) and second_index < len(second):
-        if first[first_index] == second[second_index]:
-            merged_list.append(first[first_index])
+        if first[first_index][0] == second[second_index][0]:
+            merged_list.append((first[first_index][0], first[first_index][1] + 1))
             first_index = first_index + 1
             second_index = second_index + 1
-        elif first[first_index] < second[second_index]:
+        elif first[first_index][0] < second[second_index][0]:
             merged_list.append(first[first_index])
             first_index = first_index + 1
         else:
@@ -35,13 +34,55 @@ def merge_two_postings(first, second):
     return merged_list
 
 
+# def merge_two_postings(first, second):
+#     first_index = 0
+#     second_index = 0
+#     merged_list = []
+#
+#     while first_index < len(first) and second_index < len(second):
+#         if first[first_index] == second[second_index]:
+#             merged_list.append(first[first_index])
+#             first_index = first_index + 1
+#             second_index = second_index + 1
+#         elif first[first_index] < second[second_index]:
+#             merged_list.append(first[first_index])
+#             first_index = first_index + 1
+#         else:
+#             merged_list.append(second[second_index])
+#             second_index = second_index + 1
+#
+#     # Append remainder
+#     if(first_index < len(first)):
+#         merged_list.extend(first[first_index:-1])
+#     if (second_index < len(second)):
+#         merged_list.extend(second[second_index:-1])
+#
+#     return merged_list
+
+# def merge_postings(indexed_tokens):
+#     first_list = inverted_index[indexed_tokens[0]]
+#     second_list = []
+#     for each in range(1, len(indexed_tokens)):
+#         second_list = inverted_index[indexed_tokens[each]]
+#         first_list = merge_two_postings(first_list, second_list)
+#     return first_list
+
+
 def merge_postings(indexed_tokens):
     first_list = inverted_index[indexed_tokens[0]]
-    second_list = []
+
+    first_list_tup = list(zip(first_list, [1] * len(first_list)))
+
     for each in range(1, len(indexed_tokens)):
         second_list = inverted_index[indexed_tokens[each]]
-        first_list = merge_two_postings(first_list, second_list)
-    return first_list
+        second_list_tup = list(zip(second_list, [1] * len(second_list)))
+        first_list_tup = merge_two_postings(first_list_tup, second_list_tup)
+    sorted_list  = sorted(first_list_tup, key=lambda tup: tup[1], reverse=True)  # https://stackoverflow.com/questions/4183506/python-list-sort-in-descending-order
+    results = []
+    for word in sorted_list:
+        results.append(word[0])
+    # print(sorted_list)
+    return results
 
 
 def search_query(query):
@@ -73,8 +114,6 @@ def stemming(tokens):
 def specialChar(tokens):
     str = []
     special_char_list = [".", "?", "/", "\\", "(", ")"]
-    # a = "text"
-    # a.startswith()
     for token in tokens:
         if len(token) > 1:
             for char in special_char_list:
@@ -87,12 +126,22 @@ def specialChar(tokens):
 
     return str
 
+def stopWords(tokens):
+    stop_words_list = ["a", "an", "the", "be", "been", "you", "are", "you're", "by", "to"]
+    for word in stop_words_list:
+        if word in tokens:
+            tokens.remove(word)
+    return tokens
+
+
+
 def tokenize(text):
     tokens = []
     tokens = text.split(" ")
+    tokens = stopWords(tokens)
     tokens = specialChar(tokens)
-    tokens.extend(stemming(tokens))
     tokens = remove_hyphen(tokens)
+    tokens.extend(stemming(tokens))
 
 
     return tokens
