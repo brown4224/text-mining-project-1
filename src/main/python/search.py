@@ -126,6 +126,7 @@ def specialChar(tokens):
 
     return str
 
+
 def stopWords(tokens):
     stop_words_list = ["a", "an", "the", "be", "been", "you", "are", "you're", "by", "to"]
     for word in stop_words_list:
@@ -141,11 +142,61 @@ def tokenize(text):
     tokens = stopWords(tokens)
     tokens = specialChar(tokens)
     tokens = remove_hyphen(tokens)
+    tokens = mapNumbers(tokens)
     tokens.extend(stemming(tokens))
 
 
     return tokens
 
+
+
+
+def mapNumbers(tokens):
+    str = []
+    for token in tokens:
+        if token == "0":
+            str.append("zero")
+        elif token == "1":
+            str.append("one")
+        elif token == "2":
+            str.append("two")
+        elif token == "3":
+            str.append("three")
+        elif token == "4":
+            str.append("four")
+        elif token == "5":
+            str.append("five")
+        elif token == "6":
+            str.append("six")
+        elif token == "7":
+            str.append("seven")
+        elif token == "8":
+            str.append("eight")
+        elif token == "9":
+            str.append("nine")
+        elif token == "zero":
+            str.append("0")
+        elif token == "one":
+            str.append("1")
+        elif token == "two":
+            str.append("2")
+        elif token == "three":
+            str.append("3")
+        elif token == "four":
+            str.append("4")
+        elif token == "five":
+            str.append("5")
+        elif token == "six":
+            str.append("6")
+        elif token == "seven":
+            str.append("7")
+        elif token == "eight":
+            str.append("8")
+        elif token == "nine":
+            str.append("9")
+
+    tokens.extend(str)
+    return tokens
 
 
 
@@ -161,12 +212,13 @@ def add_token_to_index(token, doc_id):
 def add_to_index(document):
     tokens = []
     tokens = tokenize(document['title'])
-    body = (tokenize(document['body']))
+    body = tokenize(document['body'])
+    # body.extend(tokenize(document['author']))
+
 
     for word in body:
         if word not in tokens:
             tokens.append(word)
-    # tokens = merge_two_postings(title, body)
     for token in tokens:
         add_token_to_index(token, document['id'])
 
@@ -184,6 +236,5 @@ if __name__ == '__main__':
     for query in all_queries:
         documents = search_query(query)
         print ("Query:{} and Results:{}".format(query, documents))
-
 
 
