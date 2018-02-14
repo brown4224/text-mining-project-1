@@ -37,10 +37,11 @@ def calculate_dcg(query, documents):
     count = 1
     sum = 0.0
     for document in documents:
-        id  = str(query['query number']) + "_" + str(document)
-        if id in query_document_relevance:
-            relevance = query_document_relevance[id]
-            sum = sum + relevance / math.log10(count + 1)
+        relevance =0
+        key = str(query['query number']) + "_" + str(document)
+        if key in query_document_relevance:
+            relevance = query_document_relevance[key]
+        sum = sum + relevance / math.log10(count + 1)
         count = count + 1
     return sum
 
@@ -51,6 +52,7 @@ if __name__ == '__main__':
     all_queries = [query for query in read_queries() if query['query number'] != 0]
     for query in all_queries:
         documents = search_query(query)
+        assert len(documents)==len(set(documents)), "Search results should not have duplicates:"+str(documents)
         if len(documents) > 0:
             print ("Query:{} and Results:{}".format(query, documents))
             dcg = calculate_dcg(query, documents)
