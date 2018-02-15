@@ -49,6 +49,7 @@ def calculate_dcg(query, documents):
 if __name__ == '__main__':
     ideal_ndcg_queries()
     sum = 0.0
+    low = {}
     all_queries = [query for query in read_queries() if query['query number'] != 0]
     for query in all_queries:
         documents = search_query(query)
@@ -60,4 +61,6 @@ if __name__ == '__main__':
             ndcg = dcg / idcg
             print ("dcg={}, ideal={}, ndcg={}".format(dcg, idcg, ndcg))
             sum = sum + ndcg
+            if ndcg < 0.5:
+                low[query['query']] = ndcg
     print ("Final ncdg for all queries is {}".format(sum / len(all_queries)))
