@@ -1,4 +1,8 @@
 import math
+from nltk import PorterStemmer
+from nltk.stem.snowball import SnowballStemmer
+
+from nltk.corpus import stopwords
 from readers import read_queries, read_documents
 max = 1
 inverted_index = {}
@@ -63,7 +67,7 @@ def rank_postings(query):
         for tup in id_list:
             doc_id = tup[0]
             doc_freq = tup[1]
-            vec_doc = tf(doc_freq) * idf_val  # tf-idf
+            vec_doc = tf(doc_freq)  # tf-idf
 
 
             length[doc_id] += vec_doc**2  #  length
@@ -81,7 +85,7 @@ def rank_postings(query):
 
         ranking.append((i, cos_score ))
     ranking.sort(key=lambda tup: tup[1], reverse=True)
-    print(ranking)
+    # print(ranking)
 
 
 
@@ -106,15 +110,50 @@ def remove_hyphen(tokens):
     for token in tokens:
         str.extend(token.split("-"))
     return str
+    # str = []
+    # for token in tokens:
+    #     # if token.find('-') != -1:
+    #     if '-' in token:
+    #         str.extend(token.split("-"))
+    #
+    # if len(str) == 1:
+    #     tokens.append(str)
+    # else:
+    #     tokens.extend(str)
+    # return tokens
 
+
+
+
+# def stemming(tokens):
+#     str = []
+#     stemming_list = ["s", "ies", "\'s", "s\'", "\'", "ed", "ing" ]
+#     for token in tokens:
+#         for stem in stemming_list:
+#             if token.endswith(stem):
+#                 str.append(token[:-len(stem)])
+#     return str
 def stemming(tokens):
+    # https://stackoverflow.com/questions/10369393/need-a-python-module-for-stemming-of-text-documents
+    stop_words = set(stopwords.words('english'))  #https://www.geeksforgeeks.org/removing-stop-words-nltk-python/
     str = []
-    stemming_list = ["s", "ies", "\'s", "s\'", "\'", "ed", "ing" ]
     for token in tokens:
-        for stem in stemming_list:
-            if token.endswith(stem):
-                str.append(token[:-len(stem)])
+        if token not in stop_words:
+            str.append(PorterStemmer().stem(token))
+
     return str
+
+def stemming_snowball(tokens):
+    stemmer = SnowballStemmer("english",  ignore_stopwords=True)    # http://www.nltk.org/howto/stem.html
+    stop_words = set(stopwords.words('english'))  #https://www.geeksforgeeks.org/removing-stop-words-nltk-python/
+
+    str = []
+    for token in tokens:
+        if token not in stop_words:
+            str.append(stemmer.stem(token))
+
+    return str
+
 
 
 def specialChar(tokens):
@@ -143,11 +182,12 @@ def stopWords(tokens):
 def tokenize_search(text):
     tokens = []
     tokens = text.split(" ")
-    tokens = stopWords(tokens)
+    # tokens = stopWords(tokens)
     tokens = specialChar(tokens)
     tokens = remove_hyphen(tokens)
     tokens = mapNumbers(tokens)
-    # tokens.extend(stemming(tokens))
+    tokens = stemming_snowball(tokens)
+
 
 
     return tokens
@@ -155,11 +195,12 @@ def tokenize_search(text):
 def tokenize(text):
     tokens = []
     tokens = text.split(" ")
-    tokens = stopWords(tokens)
+    # tokens = stopWords(tokens)
     tokens = specialChar(tokens)
     tokens = remove_hyphen(tokens)
     tokens = mapNumbers(tokens)
-    # tokens.extend(stemming(tokens))
+    tokens = stemming_snowball(tokens)
+
 
 
     return tokens
