@@ -1,3 +1,4 @@
+import re as re
 import math
 from nltk import PorterStemmer
 from nltk.stem.snowball import SnowballStemmer
@@ -37,9 +38,9 @@ def rank_postings(query):
     query_word_count = {}
     query_word_count[query[0]] = 1
     query_word_unique = [query[0]]
-    #     # todo try to normalize by doc length
-    #     # todo modularize the function
 
+    #  Build out the query to match the inverted list data structure
+    #  Query:  (word, freq), (word, freq), (word, freq), ...
     for i in range(1, len(query)):
         if query[i] in query_word_count:
             query_word_count[query[i]] += 1
@@ -67,7 +68,7 @@ def rank_postings(query):
         for tup in id_list:
             doc_id = tup[0]
             doc_freq = tup[1]
-            vec_doc = tf(doc_freq)  # tf-idf
+            vec_doc = tf(doc_freq)  # tf
 
 
             length[doc_id] += vec_doc**2  #  length
@@ -95,8 +96,8 @@ def rank_postings(query):
 
 
 def search_query(query):
-    # tokens = tokenize(str(query['query']))
-    tokens = tokenize_search(str(query['query']))
+    tokens = tokenize(str(query['query']))
+    # tokens = tokenize_search(str(query['query']))
     indexed_tokens = remove_not_indexed_toknes(tokens)
     if len(indexed_tokens) == 0:
         return []
@@ -105,10 +106,10 @@ def search_query(query):
     else:
         return rank_postings(indexed_tokens)
 
-def remove_hyphen(tokens):
+def remove_hyphen(tokens, char):
     str = []
     for token in tokens:
-        str.extend(token.split("-"))
+        str.extend(token.split(char))
     return str
     # str = []
     # for token in tokens:
@@ -143,37 +144,121 @@ def stemming(tokens):
 
     return str
 
+# def stemming_snowball(tokens):
+#     stemmer = SnowballStemmer("english",  ignore_stopwords=True)    # http://www.nltk.org/howto/stem.html
+#     stop_words = set(stopwords.words('english'))  #https://www.geeksforgeeks.org/removing-stop-words-nltk-python/
+#
+#     str = []
+#     for token in tokens:
+#         if token not in stop_words:
+#             str.append(stemmer.stem(token))
+#
+#     return str
+
 def stemming_snowball(tokens):
     stemmer = SnowballStemmer("english",  ignore_stopwords=True)    # http://www.nltk.org/howto/stem.html
     stop_words = set(stopwords.words('english'))  #https://www.geeksforgeeks.org/removing-stop-words-nltk-python/
 
     str = []
+    new_list = []
     for token in tokens:
         if token not in stop_words:
             str.append(stemmer.stem(token))
+            # new_list.append(token)
+            # stem = stemmer.stem(token)
+            # if token != stem:
+            #     str.append(stem)
+    if(len(str) > 0):
+        new_list.extend(str)
 
-    return str
 
+    return new_list
 
 
 def specialChar(tokens):
+    #  Special thanks Shah Zaframi for his help with char and strings in python
     str = []
-    special_char_list = [".", "?", "/", "\\", "(", ")"]
+    special_char_list = [".", "?", "/", "\\", "(", ")", "\"", "\'", "-", "+", ":"]
     for token in tokens:
-        if len(token) > 1:
-            for char in special_char_list:
-                if token.startswith(char):
-                    token = token[1:]
+        word = ""
+        for c in token:
+            if c not in special_char_list:
+                word += c
 
-                if len(token) > 1 and token.endswith(char):
-                    token = token[:-1]
-        str.append(token)
+        # https://stackoverflow.com/questions/19859282/check-if-a-string-contains-a-number
+        # https://stackoverflow.com/questions/19859282/check-if-a-string-contains-a-number
+
+        # Remove numbers that are in a string of word
+        number = re.sub('[^\d]', '', word)
+
+        # Subtract the two sets and remove the digits
+        char = word.replace(number, "")
+
+
+        # Add number and char if they aren't duplicates
+        if  len(number) > 0 and number != word:
+            str.append(number)
+        if  len(char) > 0 and char != word:
+            str.append(char)
+
+
+
+        # if len(word) :
+        str.append(word)
 
     return str
 
 
+
+    # str = []
+    # special_char_list = [".", "?", "/", "\\", "(", ")", "\"", "\'", "-"]
+    # for token in tokens:
+    #     if len(token) > 1:
+    #         for char in special_char_list:
+    #             if token.startswith(char):
+    #                 token = token[1:]
+    #
+    #             if len(token) > 1 and token.endswith(char):
+    #                 token = token[:-1]
+    #     str.append(token)
+    #
+    # return str
+
+# def specialChar(tokens):
+#     str = []
+#     special_char_list = [".", "?", "/", "\\", "(", ")", "\"", "\'"]
+#     for token in tokens:
+#         flag = False
+#         if len(token) > 1:
+#             for char in special_char_list:
+#                 if token.startswith(char):
+#                     flag = True
+#                     token = token[1:]
+#
+#                 if len(token) > 1 and token.endswith(char):
+#                     flag = True
+#                     token = token[:-1]
+#
+#     if len(token) > 0 and flag:
+#         str.append(token)
+#         tokens.extend(str)
+#
+#     return tokens
+
+def wordPairs(tokens):
+    str = []
+    for i in range(0, len(tokens) -1):
+        # val = tokens[i] + " " + tokens[i + 1]
+        val = "%s %s" %(tokens[i], tokens[i + 1])
+        # print(val)
+        str.append(val)
+
+    tokens.extend(str)
+    return tokens
+
+
 def stopWords(tokens):
-    stop_words_list = ["a", "an", "the", "be", "been", "you", "are", "you're", "by", "to"]
+    stop_words_list = ["a", "an", "the", "be", "been", "you", "are", "you're", "by", "to", "ing"]
     for word in stop_words_list:
         if word in tokens:
             tokens.remove(word)
@@ -183,10 +268,15 @@ def tokenize_search(text):
     tokens = []
     tokens = text.split(" ")
     # tokens = stopWords(tokens)
-    tokens = specialChar(tokens)
-    tokens = remove_hyphen(tokens)
+    tokens = remove_hyphen(tokens, "-")
+    tokens = remove_hyphen(tokens, ",")
+    tokens = remove_hyphen(tokens, "=")
+
     tokens = mapNumbers(tokens)
     tokens = stemming_snowball(tokens)
+    tokens = specialChar(tokens)
+
+
 
 
 
@@ -195,11 +285,19 @@ def tokenize_search(text):
 def tokenize(text):
     tokens = []
     tokens = text.split(" ")
-    # tokens = stopWords(tokens)
-    tokens = specialChar(tokens)
-    tokens = remove_hyphen(tokens)
+    tokens = remove_hyphen(tokens, "-")
+    tokens = remove_hyphen(tokens, ",")
+    tokens = remove_hyphen(tokens, "=")
+
     tokens = mapNumbers(tokens)
     tokens = stemming_snowball(tokens)
+    tokens = specialChar(tokens)
+    tokens = stopWords(tokens)
+    # tokens = wordPairs(tokens)  # decreased score
+
+
+
+
 
 
 
@@ -255,6 +353,9 @@ def mapNumbers(tokens):
     tokens.extend(str)
     return tokens
 
+def print_inverted_index():
+    for key, value in inverted_index.items():
+        print(key)
 
 
 def add_token_to_index(token, doc_id):
@@ -279,8 +380,10 @@ def add_to_index(document):
     tokens = []
     tokens = tokenize(document['title'])
     body = tokenize(document['body'])
+    author = tokenize(document['author'])
 
     tokens.extend(body)
+    tokens.extend(author)
 
     # Metadata
     global max
@@ -297,6 +400,7 @@ def create_index():
 
         add_to_index(document)
     print ("Created index with size {}".format(len(inverted_index)))
+    # print_inverted_index()
 
 create_index()
 
