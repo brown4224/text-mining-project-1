@@ -87,7 +87,8 @@ def rank_postings(query):
 
 
 
-    return [pos[0] for pos in ranking if pos[1] > 0]
+    # return [pos[0] for pos in ranking if pos[1] > 0]
+    return [pos[0] for pos in ranking]  #  Get a higher score for returning more!!!
 
 
 
@@ -96,6 +97,8 @@ def search_query(query):
     tokens = tokenize(str(query['query']))
     # tokens = tokenize_search(str(query['query']))
     indexed_tokens = remove_not_indexed_toknes(tokens)
+    if query['query number'] == 44:
+        print(">>>>>>>>>>>>>  Query: ", indexed_tokens)
     if len(indexed_tokens) == 0:
         return []
     elif len(indexed_tokens) == 1:
@@ -164,7 +167,7 @@ def specialChar(tokens):
             str.append(char)
 
 
-
+        # if len(word) > 0:
         str.append(word)
 
     return str
@@ -172,7 +175,7 @@ def specialChar(tokens):
 
 def wordPairs(tokens):
     str = []
-    for i in range(0, len(tokens) - 2):
+    for i in range(0, len(tokens) - 1):
         first = tokens[i]
         second = tokens[i + 1]
         if len(first) > 0 and first != ".":
@@ -219,23 +222,19 @@ def stopWords(tokens):
 
 
 
-def tokenize_search(text):
-    tokens = []
-    tokens = text.split(" ")
-    # tokens = stopWords(tokens)
-    tokens = remove_hyphen(tokens, "-")
-    tokens = remove_hyphen(tokens, ",")
-    tokens = remove_hyphen(tokens, "=")
-
-    tokens = mapNumbers(tokens)
-    tokens = stemming_snowball(tokens)
-    tokens = specialChar(tokens)
-
-
-
-
-
-    return tokens
+# def tokenize_search(text):
+#     tokens = []
+#     tokens = text.split(" ")
+#     # tokens = stopWords(tokens)
+#     tokens = remove_hyphen(tokens, "-")
+#     tokens = remove_hyphen(tokens, ",")
+#     tokens = remove_hyphen(tokens, "=")
+#
+#     tokens = mapNumbers(tokens)
+#     tokens = stemming_snowball(tokens)
+#     tokens = specialChar(tokens)
+#
+#     return tokens
 
 def tokenize(text):
     tokens = []
@@ -246,12 +245,13 @@ def tokenize(text):
     tokens = stopWords(tokens)
     tokens = specialChar(tokens)
 
-    tokens = wordPairs(tokens)  # decreased score
+    tokens = wordPairs(tokens)
 
 
 
     tokens = mapNumbers(tokens)
-    tokens = stemming_snowball(tokens)
+    tokens = stemming(tokens)
+    # tokens = stemming_snowball(tokens)
     # tokens = specialChar(tokens)
     # tokens = wordPairs(tokens)  # decreased score
 
@@ -340,10 +340,10 @@ def add_to_index(document):
     tokens = []
     tokens = tokenize(document['title'])
     body = tokenize(document['body'])
-    author = tokenize(document['author'])
+    # author = tokenize(document['author'])
 
     tokens.extend(body)
-    tokens.extend(author)
+    # tokens.extend(author)
 
     # Metadata
     global max
