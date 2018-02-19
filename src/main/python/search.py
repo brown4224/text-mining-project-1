@@ -26,9 +26,6 @@ def tf(freq):
 def idf(freq):
     return math.log((max - 1) / float(freq))
 
-# def idf_custom(freq):
-#     return math.log(float(len(inverted_index)) / float(freq))
-
 
 
 
@@ -111,28 +108,9 @@ def remove_hyphen(tokens, char):
     for token in tokens:
         str.extend(token.split(char))
     return str
-    # str = []
-    # for token in tokens:
-    #     # if token.find('-') != -1:
-    #     if '-' in token:
-    #         str.extend(token.split("-"))
-    #
-    # if len(str) == 1:
-    #     tokens.append(str)
-    # else:
-    #     tokens.extend(str)
-    # return tokens
 
 
 
-
-# def stemming(tokens):
-#     str = []
-#     stemming_list = ["s", "ies", "\'s", "s\'", "\'", "ed", "ing" ]
-#     for token in tokens:
-#         for stem in stemming_list:
-#             if token.endswith(stem):
-#                 str.append(token[:-len(stem)])
 #     return str
 def stemming(tokens):
     # https://stackoverflow.com/questions/10369393/need-a-python-module-for-stemming-of-text-documents
@@ -144,16 +122,7 @@ def stemming(tokens):
 
     return str
 
-# def stemming_snowball(tokens):
-#     stemmer = SnowballStemmer("english",  ignore_stopwords=True)    # http://www.nltk.org/howto/stem.html
-#     stop_words = set(stopwords.words('english'))  #https://www.geeksforgeeks.org/removing-stop-words-nltk-python/
-#
-#     str = []
-#     for token in tokens:
-#         if token not in stop_words:
-#             str.append(stemmer.stem(token))
-#
-#     return str
+
 
 def stemming_snowball(tokens):
     stemmer = SnowballStemmer("english",  ignore_stopwords=True)    # http://www.nltk.org/howto/stem.html
@@ -162,16 +131,9 @@ def stemming_snowball(tokens):
     str = []
     new_list = []
     for token in tokens:
-        if token not in stop_words:
-            str.append(stemmer.stem(token))
-            # new_list.append(token)
-            # stem = stemmer.stem(token)
-            # if token != stem:
-            #     str.append(stem)
-    if(len(str) > 0):
-        new_list.extend(str)
+        str.append(stemmer.stem(token))
 
-
+    new_list.extend(str)
     return new_list
 
 
@@ -203,66 +165,59 @@ def specialChar(tokens):
 
 
 
-        # if len(word) :
         str.append(word)
 
     return str
 
 
-
-    # str = []
-    # special_char_list = [".", "?", "/", "\\", "(", ")", "\"", "\'", "-"]
-    # for token in tokens:
-    #     if len(token) > 1:
-    #         for char in special_char_list:
-    #             if token.startswith(char):
-    #                 token = token[1:]
-    #
-    #             if len(token) > 1 and token.endswith(char):
-    #                 token = token[:-1]
-    #     str.append(token)
-    #
-    # return str
-
-# def specialChar(tokens):
-#     str = []
-#     special_char_list = [".", "?", "/", "\\", "(", ")", "\"", "\'"]
-#     for token in tokens:
-#         flag = False
-#         if len(token) > 1:
-#             for char in special_char_list:
-#                 if token.startswith(char):
-#                     flag = True
-#                     token = token[1:]
-#
-#                 if len(token) > 1 and token.endswith(char):
-#                     flag = True
-#                     token = token[:-1]
-#
-#     if len(token) > 0 and flag:
-#         str.append(token)
-#         tokens.extend(str)
-#
-#     return tokens
-
 def wordPairs(tokens):
     str = []
-    for i in range(0, len(tokens) -1):
-        # val = tokens[i] + " " + tokens[i + 1]
-        val = "%s %s" %(tokens[i], tokens[i + 1])
-        # print(val)
-        str.append(val)
-
+    for i in range(0, len(tokens) - 2):
+        first = tokens[i]
+        second = tokens[i + 1]
+        if len(first) > 0 and first != ".":
+            if len(second) > 0 and  second != ".":
+                val = "%s %s" %(first,second)
+                str.append(val)
     tokens.extend(str)
     return tokens
 
 
 def stopWords(tokens):
-    stop_words_list = ["a", "an", "the", "be", "been", "you", "are", "you're", "by", "to", "ing"]
-    for word in stop_words_list:
-        if word in tokens:
-            tokens.remove(word)
-    return tokens
+    stop_words = set(stopwords.words('english'))  #https://www.geeksforgeeks.org/removing-stop-words-nltk-python/
+    str = []
+    for token in tokens:
+        if token not in stop_words:
+            str.append(token)
+
+    return str
+
+    # stop_words_list = ["a", "an", "the", "be", "been", "you", "are", "you're", "by", "to", "ing"]
+    #
+    #
+    #
+    # for word in stop_words_list:
+    #     if word in tokens:
+    #         tokens.remove(word)
+    # return tokens
+
+
+
+# def stemming_snowball(tokens):
+#     stemmer = SnowballStemmer("english",  ignore_stopwords=True)    # http://www.nltk.org/howto/stem.html
+#     stop_words = set(stopwords.words('english'))  #https://www.geeksforgeeks.org/removing-stop-words-nltk-python/
+#
+#     str = []
+#     new_list = []
+#     for token in tokens:
+#         if token not in stop_words:
+#             str.append(stemmer.stem(token))
+#
+#     if(len(str) > 0):
+#         new_list.extend(str)
+
+
+
 
 def tokenize_search(text):
     tokens = []
@@ -288,11 +243,16 @@ def tokenize(text):
     tokens = remove_hyphen(tokens, "-")
     tokens = remove_hyphen(tokens, ",")
     tokens = remove_hyphen(tokens, "=")
+    tokens = stopWords(tokens)
+    tokens = specialChar(tokens)
+
+    tokens = wordPairs(tokens)  # decreased score
+
+
 
     tokens = mapNumbers(tokens)
     tokens = stemming_snowball(tokens)
-    tokens = specialChar(tokens)
-    tokens = stopWords(tokens)
+    # tokens = specialChar(tokens)
     # tokens = wordPairs(tokens)  # decreased score
 
 
