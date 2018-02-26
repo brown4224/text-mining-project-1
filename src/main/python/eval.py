@@ -63,7 +63,7 @@ if __name__ == '__main__':
             # scores = ndcg
             # print ("dcg={}, ideal={}, ndcg={}".format(dcg, idcg, ndcg))
             sum = sum + ndcg
-            if ndcg < 0.3 and ndcg > 0.2 :
+            if ndcg < 0.3  :
                 print ("Query:{} and Results:{}".format(query, documents))
                 print ("dcg={}, ideal={}, ndcg={}".format(dcg, idcg, ndcg))
 

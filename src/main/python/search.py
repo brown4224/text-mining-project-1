@@ -97,8 +97,8 @@ def search_query(query):
     # tokens = tokenize(str(query['query']))
     tokens = tokenize_search(str(query['query']))
     indexed_tokens = remove_not_indexed_toknes(tokens)
-    if query['query number'] == 22:
-        print(">>>>>>>>>>>>>  Query: ", indexed_tokens)
+    # if query['query number'] == 22:
+        # print(">>>>>>>>>>>>>  Query: ", indexed_tokens)
     if len(indexed_tokens) == 0:
         return []
     elif len(indexed_tokens) == 1:
@@ -205,60 +205,162 @@ def stopWords(tokens):
 
 def creat_synonyms_list():
     word_list = [
-        ("investigations" ,  "effects"),
+
+        # doc -> query word
+        ("investigations", "effects"),
+        ("effects", "investigations"),
         ("liquid", "water"),
-        ("wave resistance" , "wave system"),
-        ("velocities" , "pressure"),
-        ("distribution" , "transportation"),
-        ("speed", "velocity"),
+        ("water", "liquid"),
+        ("wave resistance", "wave system"),
+        ("wave system", "wave resistance"),
+        ("velocities", "pressure"),
+        ("pressure", "mathematical"),
+        ("distribution", "transportation"),
+        ("transportation", "distribution"),
+        ("speed", "flow"),
+        ("velocity", "speed"),
         ("fast", "hypersonic"),
+        ("hypersonic", "velocious"),
         ("velocious", "hypersonic"),
-        ("variation", "differences"),
         ("variation", "different"),
-        ("discover", "test"),
-        ("discover", "observe"),
-        ("discover", "recognize"),
-        ("discover", "realize"),
-        ("gas", "air"),
-        ("demonstrate", "discover"),
+        ("differences", "variation"),
+        ("different", "variation"),
         ("discover", "application"),
-        ("turbulent", "violent"),
+        ("test", "discover"),
+        ("observe", "discover"),
+        ("recognize", "discover"),
+        ("realize", "discover"),
+        ("gas", "air"),
+        ("air", "gas"),
+        ("demonstrate", "discover"),
+        ("application", "discover"),
         ("turbulent", "unstable"),
+        ("violent", "turbulent"),
+        ("unstable", "turbulent"),
         ("degrees", "temperature"),
+        ("temperature", "degrees"),
         ("super sonic", "high speed"),
-        ("information", "paper"),
+        ("high speed", "super sonic"),
         ("information", "analysis"),
+        ("paper", "theory"),
+        ("analysis", "information"),
         ("centrifugal", "various"),
+        ("various", "small"),
         ("circle", "various"),
         ("small", "various"),
         ("newtonian", "normal"),
-        ("boat-tail", "projectile"),
-        ("boat-tail", "weapon"),
+        ("normal", "newtonian"),
         ("boat-tail", "missile"),
-        ("paper", "example"),
-        ("gases", "chemical"),
+        ("projectile", "boat-tail"),
+        ("weapon", "boat-tail"),
+        ("missile", "boat-tail"),
+        ("example", "paper"),
         ("gases", "molecules"),
-        ("acoustic", "sound"),
-        ("acoustic", "subsonic"),
-        ("acoustic", "sonic"),
-        # ("acoustic", "shock"),
-        ("propagation", "linearized"),
-        ("propagation", "absorption"),
-        ("papers", "experimental"),
-        ("papers", "prove"),
-        ("prove", "results"),
-        ("reacting gases", "dissociating gas"),
-        ("reacting", "conducting"),
+        ("chemical", "gases"),
+        ("molecules", "gases"),
         ("acoustic", "noise"),
-        ("paper", "predictions"),
-        ("paper", "theory"),
+        ("sound", "acoustic"),
+        ("subsonic", "acoustic"),
+        ("sonic", "acoustic"),
+        ("shock", "acoustic"),
+        ("propagation", "absorption"),
+        ("linearized", "propagation"),
+        ("absorption", "propagation"),
+        ("papers", "prove"),
+        ("experimental", "papers"),
+        ("prove", "results"),
+        ("results", "prove"),
+        ("reacting gases", "dissociating gas"),
+        ("dissociating gas", "reacting gases"),
+        ("reacting", "conducting"),
+        ("conducting", "reacting"),
+        ("noise", "acoustic"),
+        ("predictions", "paper"),
+        ("theory", "paper"),
         ("around", "yawed"),
-        ("flow", "supersonic"),
-        ("flow", "speed"),
+        ("yawed", "swept"),
+        ("flow", "reynolds numbers"),
+        ("supersonic", "flow"),
         ("distance", "range"),
+        ("range", "distance"),
         ("linear function", "coefficients"),
+        ("coefficients", "linear function"),
+        ("factors", "conditions"),
+        ("conditions", "factors"),
         ("reynolds numbers", "flow"),
-        # ("flow", "pressure"),
+        ("functions", " equations"),
+        ("equations", "functions"),
+        ("swept", "yawed"),
+        ("mathematical", "pressure"),
+        ("papers", "prove"),
+        ("number", "data"),
+        ("similitude", "data"),
+        ("circular", "around"),
+        ("solution", "data"),
+        ("paper", "data"),
+        ("body", "surface"),
+        ("heat-transfer", "pressure"),
+        ("parameter", "data"),
+        ("approximations", "details"),
+        ("atmospheres", "gas"),
+        ("pressure", "gas"),
+        ("ionized", "gas"),
+        ("tions", "gas"),
+        ("investigation", "theory"),
+        ("analysis", "theory"),
+        ("approximated", "theory"),
+        ("transport", "kinetic"),
+        ("lift", "force"),
+        ("moderate angles", "various angles"),
+        ("improvement", "addition"),
+        ("lift", "normal force"),
+        ("centrifugal", "various angles"),
+        ("extrapolations", "addition"),
+        ("surface", "angles"),
+        ("semi-angles", "various angles"),
+        ("aerodynamics", "normal force"),
+        ("altitude", "normal force"),  # query 117 map normal force to lift, altitude
+        ("cone-cylinder", "boat-tail"),  # query 117 map normal force to lift, altitude
+        ("linearised", "linear"),  # query 117 map normal force to lift, altitude
+        ("cylindrical surfaces", "curved wings"),  # query 117 map normal force to lift, altitude
+        ("formula", "design"),
+        ("shape", "design"),
+        ("ring", "curved"),
+        ("semicircular", "curved"),
+        ("noise", "influence"),
+        ("aerodynamic", "laminar"),
+        ("airstream", "wind"),
+        ("flow", "wind"),
+        ("laminar", "wind"),
+        ("estimates", "model"),
+        ("analogue computer", "model"),
+        ("affecting", "influence"),
+        # ("investigation", "influence"),
+        ("roughness", "turbulent"),
+        # ("formulae", "model"),
+        # ("analytical", "model"),
+        # ("supersonic", "laminar"),
+        # ("measurements", "parameters"),
+        # ("axis", "linear"),
+
+        # ("example", "find"),
+        # ("infite", "data"),
+        # ("temperature", "pressure"),
+        # ("coefficients", "data"),
+        # ("heat", "pressure"),
+
+
+
+
+        # ("frequency", "wave"),
+        # ("turbulent", "wind"),
+        # ("pressure", "laminar"),
+        #
+        #
+        #
+        #
+        # ("mach", "supersonic"),
+        #
         # ("conditions", "coefficients"),
         # ("wave", "radiation"),
         # ("acoustic", "aerodynamic"),
@@ -271,14 +373,14 @@ def creat_synonyms_list():
         # ("hypersonic", "force"),
         # ("incidence", "degree"),
         # ("incidence", "occurrence"),
-
-
-
+        #
+        #
+        #
         # ("supersonic", "high speed"),
         # ("thermal", "heat"),
         # ("friction", "resistance"),
         # # ("kinetic", "particle")
-
+        #
         # ("friction", "motion"),
         # ("temperature", "pressure"),
         # ("approximations", "similarity"),
@@ -289,15 +391,45 @@ def creat_synonyms_list():
         # ("temperature", "heat")
 
     ]
+    # for tup in word_list:
+    #     w1 = PorterStemmer().stem(tup[0])
+    #     w2 = PorterStemmer().stem(tup[1])
+    #     # Forward mapping
+    #     if w1 in word_map:
+    #         word_map[w1].append(w2)
+    #     else:
+    #         word_map[w1] = [w2]
+    #     #  Reverse mapping
+    #     if w2 in word_map:
+    #         word_map[w2].append(w1)
+    #     else:
+    #         word_map[w2] = [w1]
 
-    # word_map = {}
+
     for tup in word_list:
+
         w1 = PorterStemmer().stem(tup[0])
         w2 = PorterStemmer().stem(tup[1])
+
+        if w1 in word_map:
+            if w2 not in word_map[w1]:
+                word_map[w1].append(w2)
+        else:
+            word_map[w1] = [w2]
+
+
+        # if w2 in word_map:
+        #     if w1 not in word_map[w2]:
+        #         word_map[w2].append(w1)
+        # else:
+        #     word_map[w2] = [w1]
         # Forward mapping
-        word_map[w1] = w2
-        #  Reverse mapping
-        word_map[w2] = w1
+        # word_map[w1] = w2
+         # Reverse mapping
+        # word_map[w2] = w1
+
+    # for key, value in word_map.items():
+    #     print("(\"",key, "\" , \"", value, "\")," )
 
 
 
@@ -305,51 +437,14 @@ def synonyms(tokens):
     syn = []
     for token in tokens:
         if token in word_map:
-            syn.append(word_map[token])
-            # print (word_list[token])
+            syn.extend(word_map[token])
+            # print (word_map[token])
+
 
     tokens.extend(syn)
     return tokens
 
-    # syn = []
-    # word_list = {
-    #     "investigations" : "effects",
-    #      "effects" : "investigations",
-    #     "investigation": "effect",
-    #     "effect": "investigation",
-    #     "liquid": "water",
-    #     "water" : "liquid",
-    #     "wave resistance" : "wave system",
-    #     "velocities" : "pressure",
-    #     "pressure" : "velocities",
-    #     "distribution" : "transportation",
-    #      "transportation" : "distribution"
-    #
-    # }
-    #
-    # for token in tokens:
-    #     if token in word_list:
-    #         syn.append(word_list[token])
-    #         # print (word_list[token])
-    #
-    # if len(syn) > 1:
-    #     tokens.extend(syn)
-    # return tokens
 
-    #  From https://www.geeksforgeeks.org/get-synonymsantonyms-nltk-wordnet-python/
-    # from nltk.corpus import wordnet
-    # nltk.corpus.wordnet
-
-    # synonyms = []
-    # for token in tokens:
-    #     for syn in wordnet.synsets(token):
-    #         for l in syn.lemmas():
-    #             synonyms.append(l.name())
-    #
-    # tokens.extend(list(set(synonyms)))
-    # # for v in val:
-    # #     tokens.append(v)
-    # return tokens
 
 
 def tokenize_search(text):
@@ -360,13 +455,14 @@ def tokenize_search(text):
     tokens = remove_hyphen(tokens, "-")
     tokens = remove_hyphen(tokens, ",")
     tokens = remove_hyphen(tokens, "=")
+    tokens = remove_hyphen(tokens, "\/")
     tokens = stopWords(tokens)
     # tokens = synonyms(tokens)
     tokens = specialChar(tokens)
     tokens = wordPairs(tokens)
     tokens = mapNumbers(tokens)
     tokens = stemming(tokens)
-#
+    # tokens = synonyms(tokens)
     return tokens
 
 def tokenize(text):
@@ -376,7 +472,6 @@ def tokenize(text):
     tokens = remove_hyphen(tokens, ",")
     tokens = remove_hyphen(tokens, "=")
     tokens = stopWords(tokens)
-    # tokens = synonyms(tokens)
     tokens = specialChar(tokens)
     tokens = wordPairs(tokens)
     tokens = mapNumbers(tokens)
@@ -487,6 +582,7 @@ def create_index():
 
 creat_synonyms_list()
 create_index()
+
 
 if __name__ == '__main__':
     all_queries = [query for query in read_queries() if query['query number'] != 0]
