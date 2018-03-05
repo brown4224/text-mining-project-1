@@ -25,10 +25,13 @@ def ideal_ndcg_queries():
 
     for key, value in query_relevance.items():
         sorted_relevance = sorted(query_relevance[key], reverse=True)
+
         count = 1
         sum = 0.0
         for each in sorted_relevance:
+
             sum = sum + each / math.log10(count + 1)
+            # sum = sum + 2**each - 1 / math.log2(count + 1)
             count = count + 1
         ideal_ndcg[str(key)] = sum
 
@@ -42,6 +45,7 @@ def calculate_dcg(query, documents):
         if key in query_document_relevance:
             relevance = query_document_relevance[key]
         sum = sum + relevance / math.log10(count + 1)
+        # sum = sum + 2**relevance -1 / math.log2(count + 1)
         count = count + 1
     return sum
 
@@ -56,19 +60,16 @@ if __name__ == '__main__':
         scores = []
         assert len(documents)==len(set(documents)), "Search results should not have duplicates:"+str(documents)
         if len(documents) > 0:
-            # print ("Query:{} and Results:{}".format(query, documents))
+            print ("Query:{} and Results:{}".format(query, documents))
             dcg = calculate_dcg(query, documents)
             idcg = ideal_ndcg[str(query['query number'])]
             ndcg = dcg / idcg
             # scores = ndcg
-            # print ("dcg={}, ideal={}, ndcg={}".format(dcg, idcg, ndcg))
+            print ("dcg={}, ideal={}, ndcg={}".format(dcg, idcg, ndcg))
             sum = sum + ndcg
-            if ndcg < 0.3  :
-                print ("Query:{} and Results:{}".format(query, documents))
-                print ("dcg={}, ideal={}, ndcg={}".format(dcg, idcg, ndcg))
+            # if ndcg > 0.8  :
+            #     print ("Query:{} and Results:{}".format(query, documents))
+            #     print ("dcg={}, ideal={}, ndcg={}".format(dcg, idcg, ndcg))
 
         # low[query['query']] = ndcg
     print ("Final ncdg for all queries is {}".format(sum / len(all_queries)))
-
-
-

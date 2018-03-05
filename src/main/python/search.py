@@ -1,8 +1,18 @@
 #  Sean McGlincy
 #  Text Mining: Project 1
 #  March 2, 2018
-#  Score: 0.6846613085682793
+#  NCDG Score:  0.6856248688570658
 
+
+#  Dev Environment : Centos 7,  Python 3.6, Pycharm
+#  Libraries:   math, re, nltk, nltk.corpus
+
+#  Methods Atempted:
+#  Algorithms:    Cos similarity and lang mode
+#                 Played around with Or using query frequency and KNN to little success.  deleted code
+#  Tokenization:  Used separate methods for doc and query
+#                 Split on space and hyphen, remove special characters, stop words, word pairs
+#                 number mapping, synonyms, stemming.  See method for full list.
 
 import re as re
 import math
@@ -30,6 +40,7 @@ def tf(freq):
 
 def idf(freq):
     return math.log((max_doc - 1) / float(freq))
+
 
 
 def lang_model(query):
@@ -79,7 +90,6 @@ def lang_model(query):
     for i in range(0, len(scores)):
         ranking.append((i, scores[i]))
     ranking.sort(key=lambda tup: tup[1], reverse=True)
-    # print(ranking)
     return [pos[0] for pos in ranking]
 
 def cos_ranking(query):   #0.6117392006777134
@@ -137,10 +147,9 @@ def cos_ranking(query):   #0.6117392006777134
 
         ranking.append((i, cos_score ))
     ranking.sort(key=lambda tup: tup[1], reverse=True)
-
-
-
     return [pos[0] for pos in ranking]
+
+
 
 def search_query(query):
     # tokens = tokenize(str(query['query']))
@@ -259,7 +268,6 @@ def creat_synonyms_list():
         ("velocity", "speed"),
         ("fast", "hypersonic"),
         ("hypersonic", "velocious"),
-        ("velocious", "hypersonic"),
         ("variation", "different"),
         ("differences", "variation"),
         ("different", "variation"),
@@ -268,7 +276,6 @@ def creat_synonyms_list():
         ("observe", "discover"),
         ("recognize", "discover"),
         ("realize", "discover"),
-        ("gas", "air"),
         ("air", "gas"),
         ("demonstrate", "discover"),
         ("application", "discover"),
@@ -284,14 +291,8 @@ def creat_synonyms_list():
         ("analysis", "information"),
         ("centrifugal", "various"),
         ("various", "small"),
-        ("circle", "various"),
-        ("small", "various"),
         ("newtonian", "normal"),
         ("normal", "newtonian"),
-        ("boat-tail", "missile"),
-        ("projectile", "boat-tail"),
-        ("weapon", "boat-tail"),
-        ("missile", "boat-tail"),
         ("example", "paper"),
         ("gases", "molecules"),
         ("chemical", "gases"),
@@ -330,7 +331,6 @@ def creat_synonyms_list():
         ("equations", "functions"),
         ("swept", "yawed"),
         ("mathematical", "pressure"),
-        ("papers", "prove"),
         ("number", "data"),
         ("similitude", "data"),
         ("circular", "around"),
@@ -343,7 +343,6 @@ def creat_synonyms_list():
         ("atmospheres", "gas"),
         ("pressure", "gas"),
         ("ionized", "gas"),
-        ("tions", "gas"),
         ("investigation", "theory"),
         ("analysis", "theory"),
         ("approximated", "theory"),
@@ -357,10 +356,8 @@ def creat_synonyms_list():
         ("surface", "angles"),
         ("semi-angles", "various angles"),
         ("aerodynamics", "normal force"),
-        ("altitude", "normal force"),  # query 117 map normal force to lift, altitude
-        ("cone-cylinder", "boat-tail"),  # query 117 map normal force to lift, altitude
-        ("linearised", "linear"),  # query 117 map normal force to lift, altitude
-        ("cylindrical surfaces", "curved wings"),  # query 117 map normal force to lift, altitude
+        ("linearised", "linear"),
+        ("cylindrical surfaces", "curved wings"),
         ("formula", "design"),
         ("shape", "design"),
         ("ring", "curved"),
@@ -374,7 +371,10 @@ def creat_synonyms_list():
         ("analogue computer", "model"),
         ("affecting", "influence"),
         ("roughness", "turbulent"),
-
+        ("ground", "surface"),
+        ("bullet", "boat tail"),
+        ("ballistic", "boat tail"),
+        ("missile", "boat tail"),
     ]
 
 
