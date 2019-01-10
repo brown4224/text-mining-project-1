@@ -16,7 +16,6 @@
 
 import re as re
 import math
-# import nltk
 from nltk import PorterStemmer
 from nltk.stem.snowball import SnowballStemmer
 from nltk.corpus import wordnet
@@ -41,25 +40,15 @@ def tf(freq):
 def idf(freq):
     return math.log((max_doc - 1) / float(freq))
 
-
-
 def lang_model(query):
-    # 0.1  = Final ncdg for all queries is 0.46135264398948
-    # 0.25 = Final ncdg for all queries is 0.4738344928695038
-    # 0.5  = Final ncdg for all queries is 0.5017062653731896
-    # 0.75 = Final ncdg for all queries is 0.520379967369712
-    # 0.9  = Final ncdg for all queries is 0.5218121221541857
-
-
     query_word_unique = list(set(query))
-    scores = [1] * max_doc  # Make max of list
+    scores = [1] * max_doc
     scores[0] = 0
 
 
     # Start Algorithm
     for token in query_word_unique:
         id_list = inverted_index[token]
-
         # collection Freqency
         c_tf = 0
         c_len = 0
@@ -82,7 +71,6 @@ def lang_model(query):
             if doc_length[doc_id] > 0:
                 md = d_tf / doc_length[doc_id]
 
-            # Lambda
             l = 0.75
             scores[i] *= (l * md) + ((1.0 - l) * mc)
 
@@ -92,7 +80,7 @@ def lang_model(query):
     ranking.sort(key=lambda tup: tup[1], reverse=True)
     return [pos[0] for pos in ranking]
 
-def cos_ranking(query):   #0.6117392006777134
+def cos_ranking(query):
     query_word_count = {}
     query_word_count[query[0]] = 1
     query_word_unique = [query[0]]
@@ -106,20 +94,15 @@ def cos_ranking(query):   #0.6117392006777134
             query_word_count[query[i]] = 1
             query_word_unique.append(query[i])
 
-    scores = [0] * max_doc  # Make max of list
-    length = [0] * max_doc  # Make max of list
+    scores = [0] * max_doc
+    length = [0] * max_doc
     query_length = 0
 
-
     for i in range(len( query_word_unique)):
-        # Variables
         token = query_word_unique[i]
         id_list = inverted_index[token]
         list_length = len(id_list)
 
-
-        #  Calculate Query Vec
-        # idf_val =  idf_custom(list_length)
         idf_val = idf(list_length)
         vec_query = tf(query_word_count[token]) * idf_val
         query_length += vec_query**2
@@ -127,21 +110,16 @@ def cos_ranking(query):   #0.6117392006777134
         for tup in id_list:
             doc_id = tup[0]
             doc_freq = tup[1]
-            vec_doc = tf(doc_freq)  # tf
+            vec_doc = tf(doc_freq)
 
-
-            length[doc_id] += vec_doc**2  #  length
-            scores[doc_id] += vec_doc * vec_query  #  Cos score
-
-
+            length[doc_id] += vec_doc**2
+            scores[doc_id] += vec_doc * vec_query
 
     ranking = []
     for i in range(0, len(scores)):
 
-
         if scores[i] > 0:
             cos_score = scores[i] /  ((query_length**0.5) * (length[i]**0.5))
-
         else:
             cos_score = scores[i]
 
@@ -149,10 +127,7 @@ def cos_ranking(query):   #0.6117392006777134
     ranking.sort(key=lambda tup: tup[1], reverse=True)
     return [pos[0] for pos in ranking]
 
-
-
 def search_query(query):
-    # tokens = tokenize(str(query['query']))
     tokens = tokenize_search(str(query['query']))
     indexed_tokens = remove_not_indexed_toknes(tokens)
     if len(indexed_tokens) == 0:
@@ -160,7 +135,6 @@ def search_query(query):
     elif len(indexed_tokens) == 1:
         return inverted_index[indexed_tokens[0]]
     else:
-        # return lang_model(indexed_tokens)
         return cos_ranking(indexed_tokens)
 
 def remove_hyphen(tokens, char):
@@ -171,28 +145,23 @@ def remove_hyphen(tokens, char):
 
 
 def stemming(tokens):
-    # https://stackoverflow.com/questions/10369393/need-a-python-module-for-stemming-of-text-documents
     str = []
     for token in tokens:
-        # if token not in stop_words:
         str.append(PorterStemmer().stem(token))
-
     return str
 
 
 def stemming_snowball(tokens):
-    stemmer = SnowballStemmer("english",  ignore_stopwords=True)    # http://www.nltk.org/howto/stem.html
+    stemmer = SnowballStemmer("english",  ignore_stopwords=True)
     str = []
     new_list = []
     for token in tokens:
         str.append(stemmer.stem(token))
-
     new_list.extend(str)
     return new_list
 
 
 def specialChar(tokens):
-    #  Special thanks Shah Zaframi for his help with char and strings in python
     str = []
     special_char_list = [".", "?", "/", "\\", "(", ")", "\"", "\'", "-", "+", ":"]
     for token in tokens:
@@ -201,30 +170,20 @@ def specialChar(tokens):
             if c not in special_char_list:
                 word += c
 
-        # https://stackoverflow.com/questions/19859282/check-if-a-string-contains-a-number
-        # https://stackoverflow.com/questions/19859282/check-if-a-string-contains-a-number
-
-        # Remove numbers that are in a string of word
         number = re.sub('[^\d]', '', word)
 
         char = []
-        # Subtract the two sets and remove the digits
-        # char = word.replace(number, "")
+
         if len(number) > 0:
             char = word.split(number)
 
-
-        # Add number and char if they aren't duplicates
         if  len(number) > 0 and number != word:
             str.append(number)
         if  len(char) > 0 and char != word:
             for c in char:
                 if len(c) > 0:
                     str.append(c)
-
-
         str.append(word)
-
     return str
 
 
@@ -240,20 +199,16 @@ def wordPairs(tokens):
     tokens.extend(str)
     return tokens
 
-
 def stopWords(tokens):
-    stop_words = set(stopwords.words('english'))  #https://www.geeksforgeeks.org/removing-stop-words-nltk-python/
+    stop_words = set(stopwords.words('english'))
     str = []
     for token in tokens:
         if token not in stop_words:
             str.append(token)
     return str
 
-
 def creat_synonyms_list():
     word_list = [
-
-        # (doc -> query word) mapping
         ("investigations", "effects"),
         ("effects", "investigations"),
         ("liquid", "water"),
@@ -377,7 +332,6 @@ def creat_synonyms_list():
         ("missile", "boat tail"),
     ]
 
-
     for tup in word_list:
         w1 = PorterStemmer().stem(tup[0])
         w2 = PorterStemmer().stem(tup[1])
@@ -387,7 +341,6 @@ def creat_synonyms_list():
         else:
             word_map[w1] = [w2]
 
-
 def synonyms(tokens):
     syn = []
     for token in tokens:
@@ -396,13 +349,11 @@ def synonyms(tokens):
     tokens.extend(syn)
     return tokens
 
-
 def tokenize_search(text):
     tokens = []
     tokens = text.split(" ")
     tokens = remove_hyphen(tokens, "-")
     tokens = remove_hyphen(tokens, ",")
-    # tokens = remove_hyphen(tokens, "=")
     tokens = remove_hyphen(tokens, "\/")
     tokens = stopWords(tokens)
     tokens = specialChar(tokens)
@@ -414,19 +365,17 @@ def tokenize_search(text):
 
 def tokenize(text):
     tokens = []
-    tokens = text.split(" ")                   # Cos Base:  0.6117392006777134
-    tokens = remove_hyphen(tokens, "-")        # Hyphen  :  0.6347618360585855
-    tokens = remove_hyphen(tokens, ",")        # Comma   :  0.6407339532992602
-    # tokens = remove_hyphen(tokens, "=")      # Equal   :  0.6407174038997508
-    tokens = remove_hyphen(tokens, "\/")       # Slash   :  0.6407339532992602
-    tokens = stopWords(tokens)                 # Stop    :  0.6372894149977122
-    tokens = specialChar(tokens)               # Char    :  0.6485518460375124
-    tokens = wordPairs(tokens)                 # Pairs   :  0.6407921165516753
-    tokens = mapNumbers(tokens)                # Num     :  0.6411075910761688
-    tokens = stemming(tokens)                  # Stem    :  0.6683700827175519
-    tokens = synonyms(tokens)                  # Synon   :  0.6846613085682793
+    tokens = text.split(" ")
+    tokens = remove_hyphen(tokens, "-")
+    tokens = remove_hyphen(tokens, ",")
+    tokens = remove_hyphen(tokens, "\/")
+    tokens = stopWords(tokens)
+    tokens = specialChar(tokens)
+    tokens = wordPairs(tokens)
+    tokens = mapNumbers(tokens)
+    tokens = stemming(tokens)
+    tokens = synonyms(tokens)
     return tokens
-
 
 def mapNumbers(tokens):
     str = []
@@ -471,19 +420,15 @@ def mapNumbers(tokens):
             str.append("8")
         elif token == "nine":
             str.append("9")
-
     tokens.extend(str)
     return tokens
-
 
 def print_inverted_index():
     for key, value in inverted_index.items():
         print(key)
 
-
 def add_token_to_index(token, doc_id):
-    #  Maybe re-write
-    # https://stackoverflow.com/questions/17962988/searching-an-item-in-a-multidimensional-array-in-python
+
     if token in inverted_index:
         current_postings = inverted_index[token]
         insert = False
@@ -498,19 +443,15 @@ def add_token_to_index(token, doc_id):
         inverted_index[token] = [[doc_id, 1]]
 
 def add_to_index(document):
-    # https://www.geeksforgeeks.org/python-get-unique-values-list/
     doc_id = document['id']
     tokens = []
     tokens = tokenize(document['title'])
     body = tokenize(document['body'])
     tokens.extend(body)
 
-
-    # Metadata
     global max_doc
     max_doc += 1
     doc_length[document['id']] = len(document['title']) + len(document['body'])
-
 
     for token in tokens:
         add_token_to_index(token, doc_id)
